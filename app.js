@@ -1,65 +1,29 @@
 const http = require("http");
+const fs = require("fs");
 const os = require("os");
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  res.setHeader("Content-Type", "application/json");
-
-  // Home route
-  if (req.url === "/") {
-    res.end(
-      JSON.stringify({
-        message: "Welcome to CI/CD App 🚀",
-        status: "Running",
-      })
-    );
-  }
-
-  // Health check route
-  else if (req.url === "/health") {
-    res.end(
-      JSON.stringify({
-        status: "OK",
-        uptime: process.uptime(),
-      })
-    );
-  }
-
-  // System info route
-  else if (req.url === "/info") {
+  if (req.url === "/api/info") {
+    res.setHeader("Content-Type", "application/json");
     res.end(
       JSON.stringify({
         hostname: os.hostname(),
+        uptime: process.uptime(),
         platform: os.platform(),
-        cpu: os.cpus().length,
-        memory: os.totalmem(),
+        time: new Date(),
       })
     );
-  }
-
-  // Time route
-  else if (req.url === "/time") {
-    res.end(
-      JSON.stringify({
-        currentTime: new Date(),
-      })
-    );
-  }
-
-  // Not found route
-  else {
-    res.statusCode = 404;
-    res.end(
-      JSON.stringify({
-        error: "Route not found ❌",
-      })
-    );
+  } else {
+    fs.readFile("./public/index.html", (err, data) => {
+      res.end(data);
+    });
   }
 });
 
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on port 3000");
 });
 
 

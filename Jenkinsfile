@@ -2,21 +2,31 @@ pipeline {
     agent any
 
     stages {
+
         stage('Clone Code') {
             steps {
-                git 'https://github.com/USERNAME/ci-cd-project.git'
+                git 'https://github.com/YOUR-USERNAME/ci-cd-project.git'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Build Docker Image') {
             steps {
-                sh 'npm install'
+                sh 'docker build --no-cache -t ci-cd-app .'
             }
         }
 
-        stage('Run App Test') {
+        stage('Stop Old Container') {
             steps {
-                sh 'node app.js & sleep 5'
+                sh '''
+                docker stop ci-cd-app || true
+                docker rm ci-cd-app || true
+                '''
+            }
+        }
+
+        stage('Run New Container') {
+            steps {
+                sh 'docker run -d --name ci-cd-app -p 3000:3000 ci-cd-app'
             }
         }
     }
